@@ -19,6 +19,7 @@ func main() {
 
 	subRouter := chi.NewRouter()
 	subRouter.Get("/readiness", handlerReadiness)
+	subRouter.Get("/err", errorHandler)
 
 	router.Mount("/v1", subRouter)
 
