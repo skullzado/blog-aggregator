@@ -18,6 +18,7 @@ func main() {
 	router.Use(cors.Handler(cors.Options{}))
 
 	subRouter := chi.NewRouter()
+	subRouter.Get("/readiness", handlerReadiness)
 
 	router.Mount("/v1", subRouter)
 
