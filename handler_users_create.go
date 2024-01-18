@@ -11,15 +11,8 @@ import (
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Name string `json:"name"`
+		Name string
 	}
-	type response struct {
-		ID         string    `json:"id"`
-		Created_At time.Time `json:"created_at"`
-		Updated_At time.Time `json:"Updated_at"`
-		Name       string    `json:"name"`
-	}
-
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -30,8 +23,8 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 
 	user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 		Name:      params.Name,
 	})
 	if err != nil {
@@ -39,10 +32,5 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, response{
-		ID:         user.ID.String(),
-		Created_At: user.CreatedAt,
-		Updated_At: user.UpdatedAt,
-		Name:       user.Name,
-	})
+	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
