@@ -11,4 +11,4 @@ RETURNING *;
 -- name: GetUserByApiKey :one
 SELECT *
 FROM users
-WHERE api_key = ?;
+WHERE api_key = :apiKey;
