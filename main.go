@@ -37,14 +37,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	dbQueries := database.New(db)
 
 	apiCfg := apiConfig{
 		DB: dbQueries,
 	}
-
-	go startScraping(dbQueries, 10, time.Minute)
 
 	router := chi.NewRouter()
 
@@ -69,6 +66,8 @@ func main() {
 	v1Router.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerFeedFollowCreate))
 	v1Router.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.handlerFeedFollowDelete))
 
+	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerPostsGet))
+
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
 
@@ -77,6 +76,10 @@ func main() {
 		Addr:    ":" + port,
 		Handler: router,
 	}
+
+	const collectionConcurrency = 10
+	const collectionInterval = time.Minute
+	go startScraping(dbQueries, collectionConcurrency, collectionInterval)
 
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
